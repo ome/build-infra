@@ -6,8 +6,7 @@ do
     do
         for suffix in "" "-test";
         do
-            if [[ "${source[0]}" == "${target[0]}"  && \
-                  "${source[1]}" == "${target[1]}${suffix}" ]];
+            if [[ "${source[1]}" == "${target[1]}${suffix}" ]];
             then
                 if [[ "${source[2]}" != "${target[2]}" ]];
                 then
