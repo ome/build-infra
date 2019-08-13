@@ -4,17 +4,7 @@ MERGE_OPTIONS=${MERGE_OPTIONS:-"-vvv --no-ask --reset"}
 STATUS=${STATUS:-"success-only"}
 PUSH_BRANCH=${PUSH_BRANCH:-"merge"}
 BASE_BRANCH=${BASE_BRANCH:-"master"}
-BASE_REPO=${BASE_REPO:-$(basename $PWD).git}
 GIT_HOST=${GIT_HOST:-}
-GIT_USER=${GIT_USER:-$(git config github.user)}
-
-# scc can only push to GitHub
-if [ -n "$GIT_HOST" ]; then
-    SCC_PUSH=
-else
-    GIT_HOST=git@github.com
-    SCC_PUSH="--push $PUSH_BRANCH"
-fi
 
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -40,7 +30,7 @@ do
         REPO_CONFIG="--repository-config=${yml}"
     fi
 done
-scc merge $REPO_CONFIG $MERGE_OPTIONS -S $STATUS --update-gitmodules $SCC_PUSH $BASE_BRANCH
+scc merge $REPO_CONFIG $MERGE_OPTIONS -S $STATUS --update-gitmodules $BASE_BRANCH
 
 echo "Update component versions"
 foreach-set-dependencies
@@ -48,12 +38,10 @@ foreach-set-dependencies
 echo "Commit all component version changes"
 git submodule foreach "git add -u"
 git submodule foreach "git commit -m 'Update component versions' || true"
-
-echo "Push all branches"
-git submodule foreach "git push -f $GIT_HOST:$GIT_USER/"'${path}.git'" HEAD:refs/heads/$PUSH_BRANCH"
-
-echo "Commit all component version changes"
 git add -u
 git commit -m 'Update component versions' || true
 
-git push -f $GIT_HOST:$GIT_USER/${BASE_REPO} HEAD:refs/heads/$PUSH_BRANCH
+# scc can only push to GitHub
+if [ -z "$GIT_HOST" ]; then
+    scc push $PUSH_BRANCH
+fi
