@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+printf "org.openmicroscopy\t"
+printf "$(python setup.py --name)\t"
+printf "$(python setup.py --version)\n"
