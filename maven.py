@@ -18,6 +18,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from __future__ import print_function
+from builtins import object
 import argparse
 import os
 import os.path
@@ -68,8 +70,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     pom = POM(os.path.join(os.getcwd(), 'pom.xml'))
-    print "\t".join(pom.get_version())
+    print("\t".join(pom.get_version()))
     pom.get_module_versions()
     if args.recursive:
         for v in pom.get_module_versions():
-            print "\t".join(v)
+            print("\t".join(v))
