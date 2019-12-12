@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ -z "VERSION_LOG" ]; then
+if [ -z "$VERSION_LOG" ]; then
     VERSION_LOG=`mktemp`
     trap "{ rm -f $VERSION_LOG; }" EXIT
 fi
