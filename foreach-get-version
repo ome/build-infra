@@ -1,5 +1,5 @@
 if [ -f "pom.xml" ]; then
-  python $(dirname $0)/maven.py --recursive
+  python3 $(dirname $0)/maven.py --recursive
 elif [ -f "build.gradle" ]; then
   git submodule foreach -q gradle-get-version
 else
