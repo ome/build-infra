@@ -1,0 +1,33 @@
+#!/bin/bash
+set -e
+set -u
+
+MVN_VERSION=$(mvn -q \
+                  -Dexec.executable="echo" \
+                  -Dexec.args='${project.version}' \
+                  --non-recursive \
+                  org.codehaus.mojo:exec-maven-plugin:1.3.1:exec)
+
+echo \# Found version: ${MVN_VERSION}
+
+if [[ $MVN_VERSION != *SNAPSHOT ]];
+then
+    echo "\# not a snapshot version; refusing to bump  release"
+    exit 2
+fi
+
+NEW_VERSION=${MVN_VERSION%-SNAPSHOT}
+NEXT_VERSION=$(echo ${MVN_VERSION} | awk -F. -v OFS=. '{$(NF)++; print}')
+
+echo mvn versions:set -DnewVersion=${NEW_VERSION} -DgenerateBackupPoms=false
+echo git add -u .
+echo git commit -m \"Bump release version to ${NEW_VERSION}\"
+echo scc tag-release -s ${NEW_VERSION} --prefix v
+echo mvn clean deploy -P release -D gpg.keyname=josh@glencoesoftware.com
+echo mvn nexus-staging:release -P release
+echo git push origin v${NEW_VERSION}
+echo git push origin master
+echo mvn versions:set -DnewVersion=${NEXT_VERSION}-SNAPSHOT -DgenerateBackupPoms=false
+echo git add -u .
+echo git commit -m \"Bump release version to ${NEXT_VERSION}-SNAPSHOT\"
+echo git push origin master
